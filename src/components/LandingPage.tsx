@@ -34,7 +34,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/50">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logos/Apotsa Logo Black.png" alt="Apotsa" className="h-8" />
+            <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
           </div>
 
           {/* Desktop Nav */}
@@ -361,7 +361,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
         <div className="container mx-auto px-6 grid md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-1">
             <div className="mb-6">
-              <img src="/logos/Apotsa Logo Black.png" alt="Apotsa" className="h-8" />
+              <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
             </div>
             <p className="text-slate-500 text-sm leading-relaxed">
               The financial operating system designed for the next generation of Indian business.
