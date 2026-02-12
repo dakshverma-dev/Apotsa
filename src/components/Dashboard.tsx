@@ -26,11 +26,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
     <div className="flex h-screen bg-[#F8F9FA] overflow-hidden font-sans text-slate-900 selection:bg-lime-200 selection:text-slate-900">
       {/* Sidebar - Dark Mode like Ramp/Spendesk mixed style */}
       <aside className="w-64 bg-[#0F172A] border-r border-slate-800 hidden md:flex flex-col">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-8 h-8 bg-lime-400 rounded-lg flex items-center justify-center">
-            <div className="w-3 h-3 bg-[#0F172A] rounded-full"></div>
-          </div>
-          <span className="text-xl font-bold tracking-tight text-white">Apotsa</span>
+        <div className="p-6">
+          <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
         </div>
 
         <div className="px-4 mb-6">
@@ -88,8 +85,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
                 key={r}
                 onClick={() => setRole(r as UserRole)}
                 className={`flex - 1 py - 1.5 rounded - md text - [10px] font - bold uppercase tracking - wide transition - all ${role === r
-                    ? 'bg-lime-400 text-slate-900 shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                  ? 'bg-lime-400 text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
                   } `}
               >
                 {r.slice(0, 3)}
@@ -150,8 +147,8 @@ const NavItem = ({ icon, label, active = false, badge }: { icon: React.ReactNode
   <a
     href="#"
     className={`flex items - center justify - between px - 3 py - 2 rounded - lg text - sm font - medium transition - all duration - 200 group ${active
-        ? 'bg-lime-400/10 text-lime-400'
-        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+      ? 'bg-lime-400/10 text-lime-400'
+      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
       } `}
   >
     <div className="flex items-center gap-3">
