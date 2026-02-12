@@ -147,10 +147,12 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is private and proprietary.
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
 **Daksh Verma**
 - GitHub: [@dakshverma-dev](https://github.com/dakshverma-dev)
+
+**Milind Maula**
 
 ## 🙏 Acknowledgments
 
