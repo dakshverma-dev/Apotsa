@@ -27,7 +27,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
       {/* Sidebar - Dark Mode like Ramp/Spendesk mixed style */}
       <aside className="w-64 bg-[#0F172A] border-r border-slate-800 hidden md:flex flex-col">
         <div className="p-6">
-          <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
+          <img src="/logos/file_00000000d0507207aad9233333b176c8 (1).png" alt="Apotsa" className="h-8" />
         </div>
 
         <div className="px-4 mb-6">
