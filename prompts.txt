@@ -1,0 +1,1113 @@
+=============================================================================
+APOTSA — COMPLETE BUILD PROMPTS (START TO FINISH)
+AI Coding Agent Instructions | Use with Cursor / Copilot / Windsurf
+=============================================================================
+Current state: React frontend scaffolded, server/ folder created with Express
+structure. Supabase chosen as DB. No auth, no real data, no API connections yet.
+
+HOW TO USE THIS FILE:
+- Sections marked [PASTE TO AI] → copy into Cursor/Copilot/Windsurf
+- Sections marked [YOU DO THIS] → manual steps you do yourself
+- Do them in order. Don't skip steps.
+=============================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 1 — FIX EXISTING FRONTEND BUGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Fix the following bugs in the existing frontend codebase:
+
+BUG 1 — src/components/Dashboard.tsx
+The NavItem component and role-switcher button have broken Tailwind class names
+because template literals have spaces around hyphens. Find and fix ALL instances:
+
+WRONG: `flex - 1 py - 1.5 rounded - md text - [10px] font - bold uppercase tracking - wide transition - all`
+RIGHT: `flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide transition-all`
+
+WRONG (NavItem): `flex items - center justify - between px - 3 py - 2 rounded - lg text - sm font - medium transition - all duration - 200 group`
+RIGHT: `flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group`
+
+Fix every broken className string in Dashboard.tsx. Output the complete fixed file.
+
+BUG 2 — src/index.css
+The LandingPage uses animate-[scroll_30s_linear_infinite] on the logo marquee
+but @keyframes scroll is never defined. Add this to the end of index.css:
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+Also add these missing keyframes:
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+@keyframes caret-blink {
+  0%, 70%, 100% { opacity: 1; }
+  20%, 50% { opacity: 0; }
+}
+
+BUG 3 — src/components/Dashboard.tsx
+NavItem component uses <a href="#"> for all links. Keep the element but add
+onClick prop support so we can wire navigation later.
+NavItem signature should be:
+const NavItem = ({ icon, label, active, badge, onClick }: {
+  icon: React.ReactNode, label: string, active?: boolean,
+  badge?: string, onClick?: () => void
+}) => (...)
+Add onClick={onClick} to the anchor element, add e.preventDefault() inside.
+
+Output: Complete fixed Dashboard.tsx + updated index.css
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save Dashboard.tsx and index.css
+2. Run frontend: npm run dev
+3. Open http://localhost:5173
+   - Landing page loads, logo marquee scrolls
+   - Click "Go to Dashboard" — no red console errors
+4. Done ✓ → move to Prompt 2
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 2 — BACKEND SETUP (Express + Supabase)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Set up the Express backend in the /server directory. The structure already exists:
+server/index.js, server/routes/expenses.js, server/routes/cards.js,
+server/routes/auth.js, server/db/supabase.js, server/middleware/auth.js,
+server/package.json
+
+STEP 1 — server/package.json
+{
+  "name": "apotsa-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "@supabase/supabase-js": "^2.39.0",
+    "dotenv": "^16.4.1",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "express-rate-limit": "^7.1.5"
+  }
+}
+
+STEP 2 — server/.env.example
+PORT=3001
+SUPABASE_URL=your_supabase_project_url
+SUPABASE_SERVICE_KEY=your_supabase_service_role_key
+JWT_SECRET=your_super_secret_jwt_key_min_32_chars
+CLIENT_URL=http://localhost:5173
+
+STEP 3 — server/db/supabase.js
+import { createClient } from '@supabase/supabase-js'
+import dotenv from 'dotenv'
+dotenv.config()
+const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_KEY
+if (!supabaseUrl || !supabaseKey) throw new Error('Missing Supabase env vars')
+export const supabase = createClient(supabaseUrl, supabaseKey)
+
+STEP 4 — server/middleware/auth.js
+JWT middleware:
+- Read Authorization: Bearer <token>
+- Verify with JWT_SECRET
+- Attach decoded user to req.user
+- Return 401 if missing/invalid, 403 if expired
+
+STEP 5 — server/routes/auth.js
+POST /api/auth/register — hash password, insert user, return JWT + user
+POST /api/auth/login — verify password, return JWT (7d expiry) + user
+GET /api/auth/me — protected, return current user by req.user.id
+
+STEP 6 — server/routes/expenses.js
+All routes protected. Filter by company_id from req.user.
+
+GET /api/expenses
+  Params: page, limit, status, category, department, search, date_from, date_to
+  Returns: paginated results + total count
+
+POST /api/expenses
+  Body: { vendor, amount, category, department, date, description, gst_type }
+  Auto-calc GST: intrastate → cgst=amount*0.09, sgst=amount*0.09
+                 interstate → igst=amount*0.18
+  status defaults to 'pending', submitted_by = req.user.id
+
+PATCH /api/expenses/:id/status
+  Body: { status, comment } — only managers/admins
+
+GET /api/expenses/stats
+  Returns: total_this_month, pending_count, approved_count,
+           violations_count, top_categories, spend_by_department
+
+STEP 7 — server/routes/cards.js
+All routes protected.
+GET /api/cards — all cards for company
+POST /api/cards — generate card starting with 4291, random CVV, expiry 3yr from now
+PATCH /api/cards/:id/freeze — toggle active/frozen
+PATCH /api/cards/:id/limit — update monthly_limit
+
+STEP 8 — server/index.js
+- dotenv, cors (CLIENT_URL), express.json()
+- Rate limit: 100/15min
+- Mount: /api/auth, /api/expenses, /api/cards
+- GET /api/health → { status: 'ok', timestamp }
+- Global error handler
+- Listen on PORT
+
+Output: All 8 files completely written.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 2
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save all files into server/ folder
+
+2. Create server/.env (copy from server/.env.example):
+   - Go to supabase.com → your project → Settings → API
+   - "Project URL" → SUPABASE_URL
+   - "service_role" key (NOT anon) → SUPABASE_SERVICE_KEY
+   - Generate JWT_SECRET in terminal:
+       node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   - CLIENT_URL = http://localhost:5173
+
+3. Install dependencies:
+   cd server && npm install
+
+4. DON'T start the server yet — do Prompt 3 first (schema must exist before server runs)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 3 — SUPABASE DATABASE SCHEMA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Write complete SQL to run in Supabase SQL Editor.
+RLS disabled (we handle auth in Express middleware).
+
+TABLE: companies
+  id UUID PK, name TEXT, gstin TEXT UNIQUE, plan TEXT DEFAULT 'free',
+  monthly_budget NUMERIC(12,2), created_at TIMESTAMPTZ DEFAULT NOW()
+
+TABLE: users
+  id UUID PK, company_id FK companies, email TEXT UNIQUE, password_hash TEXT,
+  name TEXT, role TEXT DEFAULT 'employee' (admin/manager/employee),
+  department TEXT, avatar_color TEXT DEFAULT '#6366f1', created_at
+
+TABLE: expenses
+  id UUID PK, company_id FK, submitted_by FK users, approved_by FK users,
+  vendor TEXT, amount NUMERIC(12,2), category TEXT
+    (travel/meals/software/office/marketing/hardware/training/utilities/other),
+  department TEXT, description TEXT, receipt_url TEXT,
+  status TEXT DEFAULT 'pending' (pending/approved/rejected/auto_approved/flagged),
+  gst_type TEXT (intrastate/interstate),
+  cgst NUMERIC, sgst NUMERIC, igst NUMERIC,
+  ai_decision TEXT, ai_confidence INTEGER, ai_reason TEXT, policy_triggered TEXT,
+  expense_date DATE DEFAULT CURRENT_DATE, created_at, updated_at
+
+TABLE: cards
+  id UUID PK, company_id FK, assigned_to FK users,
+  card_number TEXT, last_four TEXT, cvv TEXT,
+  expiry_month INT, expiry_year INT,
+  monthly_limit NUMERIC(12,2), current_spend NUMERIC(12,2) DEFAULT 0,
+  category_restrictions TEXT[] DEFAULT '{}', nickname TEXT,
+  status TEXT DEFAULT 'active' (active/frozen/cancelled), created_at
+
+TABLE: policies
+  id UUID PK, company_id FK, title TEXT, description TEXT,
+  rule_type TEXT, threshold_amount NUMERIC, category TEXT,
+  is_active BOOLEAN DEFAULT true, created_at
+
+TABLE: audit_log
+  id UUID PK, company_id FK, user_id FK, action TEXT, entity_type TEXT,
+  entity_id UUID, old_value JSONB, new_value JSONB, created_at
+
+Add indexes on: expenses(company_id, status, expense_date, category),
+cards(company_id, assigned_to), users(company_id, email)
+
+SEED DATA:
+1 company: "TechSpire Pvt Ltd", GSTIN "27AAPCS1234A1Z5", plan 'pro'
+
+3 users (password_hash is bcrypt of "password123"):
+  alex@techspire.com / "Alex Morgan" / admin
+  priya@techspire.com / "Priya Singh" / manager / Engineering
+  rahul@techspire.com / "Rahul Verma" / employee / Engineering
+  Use bcrypt hash: $2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.
+
+15 expenses with varied vendors (Uber India, Swiggy, AWS India, MakeMyTrip, WeWork,
+Figma, Zomato, Adobe, OYO, Slack, Razorpay, Cafe Coffee Day, IndiGo, Hilton,
+Microsoft), varied categories, varied statuses (mix of pending/approved/rejected/
+auto_approved/flagged), varied amounts ₹1,000–₹50,000
+
+6 cards assigned to employees with varied limits and restrictions
+
+5 policies covering: auto-approve small, meal limits, receipt required,
+no entertainment, advance travel booking
+
+Output: Complete SQL ready to paste into Supabase SQL Editor.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 3
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Go to supabase.com → your project → SQL Editor (left sidebar)
+2. Click "New Query" → paste entire SQL → click Run
+3. Should say "Success" for each statement
+4. Verify in Table Editor: companies, users, expenses, cards, policies, audit_log exist
+
+5. NOW start the backend:
+   cd server && npm run dev
+   Should see: "Server running on port 3001"
+
+6. Test in browser: http://localhost:3001/api/health
+   Should return: { "status": "ok", "timestamp": "..." }
+
+7. Test login (use Thunder Client in VS Code, or Postman, or curl):
+   POST http://localhost:3001/api/auth/login
+   Body: { "email": "alex@techspire.com", "password": "password123" }
+   Should return token + user object
+
+   Got a token? Backend fully working ✓ → move to Prompt 4
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 4 — FRONTEND AUTH + API LAYER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Add authentication and API communication to the React frontend.
+
+STEP 1 — src/lib/api.ts
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
+Use a module-level variable for token (NOT localStorage):
+  let _token: string | null = null
+  export const setToken = (t: string) => { _token = t }
+  export const clearToken = () => { _token = null }
+
+apiFetch<T>(endpoint, options?):
+  - Add Authorization: Bearer header if token exists
+  - Add Content-Type: application/json
+  - On 401 → dispatch CustomEvent('auth:logout')
+  - Throw on non-ok with response error message
+
+Export typed API functions:
+  auth.login(email, password) → POST /api/auth/login
+  auth.register(data) → POST /api/auth/register
+  auth.me() → GET /api/auth/me
+  expenses.list(params) → GET /api/expenses?...
+  expenses.create(data) → POST /api/expenses
+  expenses.updateStatus(id, status, comment?) → PATCH /api/expenses/:id/status
+  expenses.stats() → GET /api/expenses/stats
+  cards.list() → GET /api/cards
+  cards.create(data) → POST /api/cards
+  cards.freeze(id) → PATCH /api/cards/:id/freeze
+  cards.updateLimit(id, limit) → PATCH /api/cards/:id/limit
+
+Export all TypeScript types for requests/responses.
+
+STEP 2 — src/contexts/AuthContext.tsx
+Context: { user, isLoading, login, logout, isAuthenticated }
+
+AuthProvider:
+  - On mount: call auth.me() to restore session, set isLoading true/false
+  - Listen for 'auth:logout' event → logout()
+  - login() → calls api, setToken(), sets user
+  - logout() → clearToken(), clears user
+
+STEP 3 — src/components/LoginPage.tsx
+Two-panel layout:
+
+Left panel (hidden mobile, 45% desktop, bg-slate-900):
+  - "apotsa" logo in lime-400 (large)
+  - Tagline: "The financial OS for modern Indian businesses"
+  - 3 bullets (lime checkmarks):
+      "Real-time spend visibility across all departments"
+      "Auto GST compliance — CGST, SGST, IGST calculated instantly"
+      "AI-powered policy enforcement — 24/7"
+  - Bottom testimonial card (slate-800, rounded-2xl):
+      "We saved 18 hours a month on expense reconciliation."
+      — Arjun Mehta, CFO at Growfin
+
+Right panel (white, full mobile, 55% desktop, flex center):
+  - "Welcome back" h1 + "Sign in to your account" subtitle
+  - Email input (Mail icon, rounded-xl)
+  - Password input (Eye/EyeOff toggle, rounded-xl)
+  - "Sign In" button (full width, slate-900 bg, hover:bg-lime-400 hover:text-slate-900)
+    Shows spinner + "Signing in..." while loading
+  - Red error message on failure
+  - Divider "or continue with demo"
+  - 3 demo cards (hover:border-lime-400):
+      [Admin] alex@techspire.com / password123
+      [Manager] priya@techspire.com / password123
+      [Employee] rahul@techspire.com / password123
+    Click → auto-login and navigate to dashboard
+
+STEP 4 — Update src/App.tsx
+  type View = 'landing' | 'login' | 'dashboard'
+  Wrap in AuthProvider
+  If isAuthenticated → show Dashboard
+  Landing "Log in" / "Start Free Trial" → setView('login')
+  LoginPage onSuccess → setView('dashboard')
+  Dashboard logout → auth.logout() + setView('landing')
+
+Output: src/lib/api.ts + src/contexts/AuthContext.tsx +
+        src/components/LoginPage.tsx + updated src/App.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 4
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save all 4 files
+
+2. Create .env.local in your PROJECT ROOT (not server/):
+   VITE_API_URL=http://localhost:3001
+
+3. Make sure backend is running in a separate terminal:
+   cd server && npm run dev
+
+4. Restart frontend: npm run dev (stop and restart so .env.local loads)
+
+5. Test:
+   - Open http://localhost:5173 → Landing
+   - Click "Log in" → LoginPage
+   - Click "Admin" demo card → should log in and show Dashboard
+   - No CORS errors in console
+
+   CORS error? → check server/.env CLIENT_URL = http://localhost:5173
+   404 error? → check .env.local VITE_API_URL = http://localhost:3001
+
+6. Auth working ✓ → move to Prompt 5
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 5 — DASHBOARD NAVIGATION WIRING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Wire up Dashboard.tsx so nav items navigate between real pages.
+
+Add activePage state:
+type AdminPage = 'overview'|'expenses'|'cards'|'people'|'accounting'|'ai-agent'|'settings'
+type ManagerPage = 'team-overview'|'team-spend'|'approvals'|'reports'
+type EmployeePage = 'home'|'my-expenses'|'my-cards'
+type Page = AdminPage | ManagerPage | EmployeePage
+
+const [activePage, setActivePage] = useState<Page>('overview')
+
+Reset on role change:
+  useEffect(() => {
+    if (role==='admin') setActivePage('overview')
+    if (role==='manager') setActivePage('team-overview')
+    if (role==='employee') setActivePage('home')
+  }, [role])
+
+Update all NavItem calls: pass onClick + active based on activePage.
+
+Admin nav:
+  Overview→'overview', Expenses→'expenses', Cards→'cards', People→'people',
+  AI Agent→'ai-agent' (Sparkles icon, badge="NEW" lime), Settings→'settings'
+
+Content area rendering (import pages from ./dashboard/):
+  {role==='admin' && activePage==='overview' && <AdminDashboard />}
+  {role==='admin' && activePage==='expenses' && <ExpensesPage />}
+  {role==='admin' && activePage==='cards' && <CardsPage />}
+  {role==='admin' && activePage==='ai-agent' && <AIPolicyAgent />}
+  {role==='admin' && activePage==='people' && <PeoplePage />}
+  {role==='admin' && activePage==='settings' && <SettingsPage />}
+  {role==='manager' && <ManagerDashboard activePage={activePage} />}
+  {role==='employee' && <EmployeeDashboard activePage={activePage} />}
+
+Mobile sidebar:
+  Add mobileOpen state
+  Hamburger button in header (md:hidden, Menu icon)
+  Use Radix Sheet (already in project) sliding from left
+  Same nav content inside Sheet
+  Close on nav click
+
+Header title: dynamically show page name from activePage.
+
+IMPORTANT: Create empty placeholder components for pages that don't exist yet.
+Each placeholder: <div className="p-8 text-slate-500">Coming soon</div>
+Files to create: dashboard/ExpensesPage.tsx, dashboard/CardsPage.tsx,
+dashboard/AIPolicyAgent.tsx, dashboard/PeoplePage.tsx, dashboard/SettingsPage.tsx
+
+Output: Complete Dashboard.tsx + all 5 placeholder files
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 5
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save Dashboard.tsx + all 5 placeholder files in src/components/dashboard/
+2. Log in as Admin
+3. Test:
+   - Sidebar nav items clickable
+   - Clicking "Expenses" shows "Coming soon" placeholder
+   - "AI Agent" has lime "NEW" badge
+   - Mobile: narrow window → hamburger appears → sidebar slides in
+4. Navigation working ✓ → move to Prompt 6
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 6 — EXPENSES PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace placeholder src/components/dashboard/ExpensesPage.tsx with full page.
+Use mock data for now (real API connected in Prompt 9).
+
+MOCK DATA (12 expenses):
+[
+  { id:1, employee:'Rahul Verma', initials:'RV', color:'#6366f1',
+    vendor:'Uber India', category:'travel', amount:4500, date:'12 Feb 2025',
+    department:'Engineering', status:'approved',
+    gst_type:'intrastate', cgst:405, sgst:405, igst:0 },
+  { id:2, employee:'Priya Singh', initials:'PS', color:'#f59e0b',
+    vendor:'Swiggy Business', category:'meals', amount:3800, date:'11 Feb 2025',
+    department:'Product', status:'flagged',
+    gst_type:'intrastate', cgst:342, sgst:342, igst:0 },
+  { id:3, employee:'Amit Kumar', initials:'AK', color:'#10b981',
+    vendor:'AWS India', category:'software', amount:28500, date:'10 Feb 2025',
+    department:'Engineering', status:'auto_approved',
+    gst_type:'interstate', cgst:0, sgst:0, igst:5130 },
+  { id:4, employee:'Sarah Johnson', initials:'SJ', color:'#8b5cf6',
+    vendor:'MakeMyTrip', category:'travel', amount:18200, date:'09 Feb 2025',
+    department:'Sales', status:'pending',
+    gst_type:'interstate', cgst:0, sgst:0, igst:3276 },
+  { id:5, employee:'Vikram Nair', initials:'VN', color:'#ef4444',
+    vendor:'WeWork India', category:'office', amount:45000, date:'08 Feb 2025',
+    department:'Operations', status:'approved',
+    gst_type:'intrastate', cgst:4050, sgst:4050, igst:0 },
+  { id:6, employee:'Meera Iyer', initials:'MI', color:'#06b6d4',
+    vendor:'Figma', category:'software', amount:4200, date:'07 Feb 2025',
+    department:'Design', status:'auto_approved',
+    gst_type:'interstate', cgst:0, sgst:0, igst:756 },
+  { id:7, employee:'Raj Patel', initials:'RP', color:'#84cc16',
+    vendor:'Zomato Business', category:'meals', amount:6500, date:'06 Feb 2025',
+    department:'Marketing', status:'rejected',
+    gst_type:'intrastate', cgst:585, sgst:585, igst:0 },
+  { id:8, employee:'Ananya Das', initials:'AD', color:'#f97316',
+    vendor:'Adobe Creative', category:'software', amount:12800, date:'05 Feb 2025',
+    department:'Design', status:'pending',
+    gst_type:'interstate', cgst:0, sgst:0, igst:2304 },
+  { id:9, employee:'Karan Mehta', initials:'KM', color:'#a855f7',
+    vendor:'OYO Business', category:'travel', amount:8900, date:'04 Feb 2025',
+    department:'Sales', status:'approved',
+    gst_type:'intrastate', cgst:801, sgst:801, igst:0 },
+  { id:10, employee:'Divya Sharma', initials:'DS', color:'#14b8a6',
+    vendor:'Slack Pro', category:'software', amount:3200, date:'03 Feb 2025',
+    department:'Engineering', status:'auto_approved',
+    gst_type:'interstate', cgst:0, sgst:0, igst:576 },
+  { id:11, employee:'Arjun Reddy', initials:'AR', color:'#f43f5e',
+    vendor:'Razorpay', category:'software', amount:2100, date:'02 Feb 2025',
+    department:'Finance', status:'approved',
+    gst_type:'intrastate', cgst:189, sgst:189, igst:0 },
+  { id:12, employee:'Sneha Gupta', initials:'SG', color:'#64748b',
+    vendor:'Cafe Coffee Day', category:'meals', amount:1850, date:'01 Feb 2025',
+    department:'HR', status:'pending',
+    gst_type:'intrastate', cgst:166.5, sgst:166.5, igst:0 }
+]
+
+UI STRUCTURE:
+
+Header: "Expenses" + "All company transactions" | Export CSV button + Submit Expense button (lime)
+
+Stats (4 white cards): Total This Month | Pending Review | Auto-Approved | Policy Violations (red)
+
+Filter Bar (white card): Search input | Category select | Status select | Department select
+All filters update the table in real-time.
+
+Table (white card, rounded-3xl):
+  Columns: □ | Employee | Vendor | Category | Amount | Department | Date | Status | Actions
+
+  Row details:
+  - Employee: colored circle + name
+  - Vendor: plain name
+  - Category pill: travel=blue, meals=orange, software=purple, office=slate, marketing=pink
+  - Amount: "₹X,XX,XXX" bold + below: "CGST ₹X · SGST ₹X" or "IGST ₹X"
+    Radix Tooltip on hover: full GST breakdown table
+  - Status badges: pending=amber, approved=lime, auto_approved=blue, rejected=red, flagged=orange
+  - Actions: Approve (green, Check icon) + Reject (red, X icon) — only for pending/flagged
+    Clicking updates local state
+
+  Row click → open ExpenseDetailModal
+
+EXPENSE DETAIL MODAL (AnimatePresence, scale+opacity):
+  Vendor + status badge | Large amount in lime-600
+  Grid: Employee | Department | Date | Category
+  GST breakdown table (Base / CGST / SGST or IGST / Total with Tax)
+  Receipt placeholder (dashed, Upload icon)
+  Approve/Reject buttons if pending/flagged
+
+Empty state: Receipt icon + "No expenses found" + "Adjust your filters"
+
+Pagination: 10/page, "Showing X-Y of Z", Prev/Next buttons
+
+All amounts: amount.toLocaleString('en-IN') with ₹
+
+Output: Complete src/components/dashboard/ExpensesPage.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 6
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save ExpensesPage.tsx into src/components/dashboard/
+2. Click "Expenses" in sidebar
+3. Verify:
+   - 12 expenses in table
+   - Filters work in real-time
+   - Hovering amount shows GST tooltip
+   - Row click opens detail modal
+   - Approve/Reject updates status
+4. Working ✓ → move to Prompt 7
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 7 — CARDS MANAGEMENT PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace placeholder src/components/dashboard/CardsPage.tsx with full page.
+Use mock data (real API in Prompt 9).
+
+MOCK DATA (9 cards):
+[
+  { id:1, name:'Rahul Verma', initials:'RV', role:'Senior Developer',
+    department:'Engineering', last_four:'4291', limit:50000, spent:13200,
+    status:'active', color:'#6366f1', restrictions:['meals','travel'] },
+  { id:2, name:'Priya Singh', initials:'PS', role:'Product Manager',
+    department:'Product', last_four:'8834', limit:75000, spent:48900,
+    status:'active', color:'#f59e0b', restrictions:['software','office'] },
+  { id:3, name:'Amit Kumar', initials:'AK', role:'QA Lead',
+    department:'Engineering', last_four:'2156', limit:30000, spent:28100,
+    status:'active', color:'#10b981', restrictions:[] },
+  { id:4, name:'Sarah Johnson', initials:'SJ', role:'Sales Head',
+    department:'Sales', last_four:'9923', limit:100000, spent:32000,
+    status:'active', color:'#8b5cf6', restrictions:['travel','meals'] },
+  { id:5, name:'Vikram Nair', initials:'VN', role:'Operations Lead',
+    department:'Operations', last_four:'6612', limit:40000, spent:1200,
+    status:'frozen', color:'#ef4444', restrictions:['office'] },
+  { id:6, name:'Meera Iyer', initials:'MI', role:'UI Designer',
+    department:'Design', last_four:'3387', limit:25000, spent:8400,
+    status:'active', color:'#06b6d4', restrictions:['software'] },
+  { id:7, name:'Raj Patel', initials:'RP', role:'Marketing Manager',
+    department:'Marketing', last_four:'7741', limit:60000, spent:41200,
+    status:'active', color:'#84cc16', restrictions:['marketing','meals'] },
+  { id:8, name:'Ananya Das', initials:'AD', role:'Content Lead',
+    department:'Marketing', last_four:'5518', limit:20000, spent:4100,
+    status:'active', color:'#f97316', restrictions:['marketing'] },
+  { id:9, name:'Karan Mehta', initials:'KM', role:'Enterprise Sales',
+    department:'Sales', last_four:'1196', limit:80000, spent:67800,
+    status:'active', color:'#a855f7', restrictions:['travel','meals','entertainment'] }
+]
+
+Header: "Corporate Cards" + "Issue New Card" button (lime, CreditCard icon)
+
+Stats (4 cards): Total Cards | Active (lime) | Frozen (red) | Total Spend MTD
+
+Card Grid (3 cols desktop, 2 tablet, 1 mobile):
+
+Each Card Item (white, rounded-3xl, overflow-hidden):
+  TOP — dark (#111827, h-44, p-5):
+    "apotsa" (lime-400 small) + "VISA" (white, right)
+    **** **** **** {last_four} (font-mono, lime-400, tracking-widest)
+    Cardholder name (white, uppercase xs) + expiry (white, right)
+    If frozen: black/60 overlay + ❄ FROZEN centered
+
+  BOTTOM — white, p-5:
+    Name + role + dept chip
+    Spend: "₹{spent} / ₹{limit}" + progress bar
+      <70% → lime, 70-90% → amber, >90% → red
+    Restriction chips (or "All categories" in lime if empty)
+    Status chip: Active (lime) / Frozen (slate)
+    3 action buttons (small, outline): Details | Freeze/Unfreeze | Adjust Limit
+
+Freeze toggle: optimistic update, show "Card frozen/unfrozen" for 2s
+
+Adjust Limit Modal (max-w-sm):
+  Current limit display + number input with ₹ + range slider (5k-200k step 5k)
+  Save (lime) + Cancel
+
+Issue New Card Modal (max-w-md, 3 steps with progress indicator):
+  Step 1: Select employee from list (show "Already has card" if applicable)
+  Step 2: Monthly limit + slider + category restriction checkboxes + nickname
+  Step 3: Preview virtual card + summary + "Issue Card" button (adds to state)
+
+Output: Complete src/components/dashboard/CardsPage.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 7
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save CardsPage.tsx
+2. Click "Cards" in sidebar
+3. Verify:
+   - 9 cards in grid
+   - Vikram Nair's card shows FROZEN overlay
+   - Freeze/Unfreeze toggles instantly
+   - Adjust Limit modal + slider works
+   - Issue New Card walks through 3 steps
+4. Working ✓ → move to Prompt 8 (most important!)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 8 — AI POLICY AGENT (THE MOAT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace placeholder src/components/dashboard/AIPolicyAgent.tsx.
+This calls Anthropic Claude API directly from the browser.
+
+CLAUDE API:
+  URL: https://api.anthropic.com/v1/messages
+  Method: POST
+  Headers:
+    'Content-Type': 'application/json'
+    'anthropic-version': '2023-06-01'
+    'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY
+    'anthropic-dangerous-direct-browser-access': 'true'
+  Body:
+    model: 'claude-sonnet-4-20250514'
+    max_tokens: 500
+    system: "You are an AI expense policy compliance agent for an Indian B2B SaaS
+company. Analyze expenses against company policies. Respond ONLY with valid JSON.
+No markdown, no backticks, no explanation. Raw JSON only."
+    messages: [{ role: 'user', content: <template below> }]
+
+User message template:
+`Analyze this expense:
+- Vendor: ${vendor}
+- Amount: ₹${amount}
+- Category: ${category}
+- Employee: ${employee}
+- Department: ${department}
+
+Active Policies:
+${activePolicies.map((p,i) => `${i+1}. ${p.title}: ${p.description}`).join('\n')}
+
+Respond with ONLY this JSON:
+{
+  "decision": "APPROVE" or "FLAG" or "REJECT",
+  "confidence": integer 0-100,
+  "reason": "one sentence",
+  "policy_triggered": "policy title or null",
+  "suggestion": "one actionable suggestion"
+}`
+
+Parse: JSON.parse(data.content[0].text)
+
+FALLBACK if API fails (show banner "Demo mode — Claude API unavailable"):
+  amount < 5000 → APPROVE 94%
+  category === 'entertainment' → REJECT 97%
+  category === 'meals' && amount > 3000 → FLAG 89%
+  amount > 20000 → FLAG 85%
+  else → APPROVE 91%
+
+DEFAULT POLICIES:
+[
+  { id:1, title:'Auto-approve small expenses',
+    description:'Auto-approve under ₹5,000 with receipt', active:true },
+  { id:2, title:'Meal limit',
+    description:'Flag meals exceeding ₹3,000 per person', active:true },
+  { id:3, title:'Receipt required',
+    description:'Require receipt for expenses above ₹2,000', active:true },
+  { id:4, title:'No entertainment without approval',
+    description:'Reject entertainment/alcohol without CFO approval', active:true },
+  { id:5, title:'Advance travel booking',
+    description:'Flag travel booked less than 48hrs before travel', active:true },
+  { id:6, title:'Hotel limit',
+    description:'Flag hotels exceeding ₹8,000 per night', active:true }
+]
+
+EXPENSES TO ANALYZE (6):
+[
+  { id:1, vendor:'Taj Hotel Mumbai', amount:18500, category:'meals',
+    employee:'Vikram Nair', department:'Sales', date:'12 Feb 2025' },
+  { id:2, vendor:'IndiGo Airlines', amount:12400, category:'travel',
+    employee:'Sarah Johnson', department:'Sales', date:'11 Feb 2025' },
+  { id:3, vendor:'Bar & Lounge Mumbai', amount:8900, category:'entertainment',
+    employee:'Raj Patel', department:'Marketing', date:'10 Feb 2025' },
+  { id:4, vendor:'Swiggy', amount:2800, category:'meals',
+    employee:'Rahul Verma', department:'Engineering', date:'09 Feb 2025' },
+  { id:5, vendor:'AWS India', amount:45000, category:'software',
+    employee:'Ananya Das', department:'Engineering', date:'08 Feb 2025' },
+  { id:6, vendor:'Hilton Bangalore', amount:22000, category:'travel',
+    employee:'Karan Mehta', department:'Sales', date:'07 Feb 2025' }
+]
+
+PAGE LAYOUT:
+
+Header: Sparkles icon + "AI Policy Agent" | "claude-sonnet-4" dark chip
+Subtitle: "Powered by Claude AI — your 24/7 expense compliance officer"
+
+Two columns:
+
+LEFT (40%) — "Spend Policies" white card:
+  Policy list (each row: Switch + title + description + edit/delete icons on hover)
+  "Add Policy" button → inline form
+  Footer: "{n} policies active"
+
+  Below: "Analysis Summary" card (shows after first analysis):
+    X Approved (lime) | X Flagged (amber) | X Rejected (red)
+
+RIGHT (60%) — "AI Review Queue" white card:
+  Header: pulsing green dot + "Live" + "Analyze All" button (lime, Sparkles)
+
+  6 expense cards:
+
+  UNANALYZED: vendor + amount | employee/dept/category chips | "Analyze" button
+  LOADING: skeleton animation on result area
+  ANALYZED — colored bg:
+    APPROVE → lime-50/lime-200
+    FLAG → amber-50/amber-200
+    REJECT → red-50/red-200
+
+    Result box (white inner, rounded-xl, p-4):
+      Decision badge + confidence progress bar + "{n}% confidence"
+      "Reason: {reason}"
+      "Policy: {policy_triggered}" (if set)
+      "💡 {suggestion}"
+      Action buttons:
+        APPROVE: "Accept ✓" (lime filled) + "Override" (outline)
+        FLAG: "Review Manually" (amber) + "Approve Anyway" (outline)
+        REJECT: "Confirm Reject" (red) + "Override & Approve" (outline)
+
+  "Analyze All": set all loading, call API sequentially with 600ms delay,
+  update each card as result comes in.
+
+  After all done: summary banner "Analysis Complete ✓" with X/X/X counts
+  + "Export AI Report" button (downloads text summary)
+
+Output: Complete src/components/dashboard/AIPolicyAgent.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 8
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save AIPolicyAgent.tsx
+
+2. Get Anthropic API key for Claude:
+   - Go to console.anthropic.com → API Keys → Create Key
+   - Add to .env.local (project root):
+       VITE_ANTHROPIC_API_KEY=sk-ant-api03-...
+   - Restart frontend: npm run dev
+
+3. Click "AI Agent" in sidebar
+4. Click "Analyze" on any expense — should get real AI decision
+5. Click "Analyze All" — watch all 6 analyze one by one
+6. Toggle policies off → re-analyze → decisions change
+
+   "Demo mode" banner = API key missing or wrong
+   CORS error = missing 'anthropic-dangerous-direct-browser-access' header (already in prompt)
+
+7. This is your #1 investor demo feature ✓
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 9 — CONNECT FRONTEND TO REAL BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Replace mock data with real API calls using src/lib/api.ts from Prompt 4.
+
+UPDATE AdminDashboard.tsx:
+  On mount call expenses.stats()
+  Replace hardcoded KPIs with API data
+  Show skeleton cards while loading
+  Error state with Retry button
+
+UPDATE ExpensesPage.tsx:
+  Remove mock data array
+  State: expenses[], loading, error, total, page, filters
+  On mount + filter change: expenses.list({ page, limit:10, ...filters })
+  Debounce search 300ms
+  Approve/Reject: call expenses.updateStatus(id, status) + optimistic update
+    (change local state immediately, revert on error)
+  Submit Expense modal: call expenses.create(data), refetch on success
+
+UPDATE CardsPage.tsx:
+  On mount: cards.list()
+  Freeze: cards.freeze(id) — optimistic toggle
+  Adjust Limit: cards.updateLimit(id, limit) on save
+  Issue Card: cards.create(data) → add to state
+
+LOADING STATE (use everywhere):
+  <div className="animate-pulse space-y-4">
+    {[...Array(4)].map((_,i) => <div key={i} className="h-24 bg-slate-100 rounded-2xl"/>)}
+  </div>
+
+ERROR STATE (use everywhere):
+  <div className="flex flex-col items-center justify-center py-20">
+    <AlertCircle size={32} className="text-red-400 mb-3" />
+    <p className="font-semibold text-slate-600">{error}</p>
+    <button onClick={refetch} className="mt-4 px-4 py-2 border rounded-xl text-sm">
+      Try Again
+    </button>
+  </div>
+
+Output: Updated AdminDashboard.tsx + ExpensesPage.tsx + CardsPage.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 9
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save all 3 files
+2. Both terminals running: frontend (npm run dev) + backend (cd server && npm run dev)
+3. Log in as Admin
+4. Dashboard KPIs should show real numbers from Supabase
+5. Expenses page shows 15 seeded expenses
+6. Cards page shows 6 seeded cards
+7. Approve an expense → go to Supabase Table Editor → expenses → verify status changed
+8. Real data connected ✓ → move to Prompt 10
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 10 — PEOPLE PAGE + SETTINGS PAGE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Create src/components/dashboard/PeoplePage.tsx
+
+Header: "People" + "Invite Member" button (lime, UserPlus icon)
+Stats: Total | Admins | Managers | Employees
+
+People Table (white card, rounded-3xl):
+  Columns: Employee | Role | Department | Card | Monthly Spend | Status | Actions
+  10 employees (use names from expenses/cards mock data)
+  - Avatar + name + email
+  - Role badge: admin=purple, manager=blue, employee=slate
+  - Department text
+  - Card: "•••• {last4}" or "No card" + Issue button
+  - Spend: ₹X,XXX
+  - Active/Inactive dot
+  - Edit Role + Remove (with confirm dialog)
+
+Invite Member Modal:
+  Name + Email + Role + Department inputs
+  "Send Invite" → show "✓ Invite sent to {email}" success state
+
+---
+
+Create src/components/dashboard/SettingsPage.tsx
+
+Left nav (30%): Company Profile | Notifications | Security | Billing
+Right content (70%) changes per tab:
+
+Company Profile: Name + GSTIN + Industry + Size + Plan badge + Save
+Notifications: 5 toggle switches (Radix Switch) with title + description
+Security: Change password form + mock active session
+Billing: Current plan card + next billing + features + Upgrade button
+
+Output: Complete PeoplePage.tsx + SettingsPage.tsx
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 10
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save both files
+2. Test People page: team table shows, invite modal works
+3. Test Settings page: all 4 tabs switch correctly
+4. Working ✓ → move to Prompt 11
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 11 — POLISH + ANIMATIONS + EXPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Polish for investor demo quality.
+
+1. PAGE TRANSITIONS — Dashboard.tsx:
+   Wrap content area with AnimatePresence key={activePage}
+   Each page: motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}
+   exit={{opacity:0,y:-8}} transition={{duration:0.18}}
+
+2. NUMBER COUNT-UP — src/hooks/useCountUp.ts:
+   useCountUp(target: number, duration = 900): number
+   - requestAnimationFrame easing 0→target
+   Apply to all KPI numbers in AdminDashboard.
+
+3. TOAST SYSTEM — src/components/ui/Toast.tsx (no new packages):
+   Fixed bottom-right, z-50
+   white card, rounded-xl, shadow-lg
+   green/red/blue dot based on type + message + X close
+   Slide in from right, auto-dismiss 3s, max 3 toasts
+   Export useToast(): { toast(msg, type) }
+   Add <ToastContainer /> to App.tsx
+   Use in: ExpensesPage (approved/rejected), CardsPage (frozen/issued/limit updated)
+
+4. CSV EXPORT — ExpensesPage.tsx:
+   Export CSV of filtered expenses
+   Columns: Employee, Vendor, Category, Amount, Base Amount, CGST, SGST, IGST,
+            Total with Tax, Department, Date, Status
+   Blob download, filename: apotsa-expenses-{YYYY-MM-DD}.csv
+
+5. PAGE TITLE — Dashboard.tsx:
+   useEffect(() => {
+     const map = { overview:'Overview', expenses:'Expenses', cards:'Corporate Cards',
+       'ai-agent':'AI Policy Agent', people:'People', settings:'Settings' }
+     document.title = `${map[activePage] || activePage} | Apotsa`
+   }, [activePage])
+
+6. index.html updates:
+   <title>Apotsa — Financial OS for Indian Businesses</title>
+   SVG favicon: lime circle on slate-900 bg
+
+Output: useCountUp.ts + Toast.tsx + updated Dashboard.tsx +
+        updated ExpensesPage.tsx + updated index.html
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 11
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Save all files
+2. Refresh app, verify:
+   - Page switching has smooth fade animation
+   - KPI numbers count up from 0
+   - Approve expense → toast appears bottom-right
+   - Export CSV downloads real file
+   - Browser tab title changes per page
+   - Lime favicon in tab
+3. Investor-demo ready ✓ → deploy (Prompt 12)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[PASTE TO AI] PROMPT 12 — DEPLOYMENT SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Prepare for production. Frontend → Vercel | Backend → Render | DB → Supabase
+
+1. Root package.json — add scripts:
+   "dev:frontend": "vite --port 5173",
+   "dev:backend": "cd server && node --watch index.js",
+   "build": "vite build",
+   "install:all": "npm install && cd server && npm install"
+   Add devDep: "concurrently": "^8.2.2"
+
+2. vercel.json (project root):
+   {
+     "buildCommand": "npm run build",
+     "outputDirectory": "dist",
+     "framework": "vite",
+     "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+   }
+
+3. server/render.yaml:
+   services:
+     - type: web
+       name: apotsa-api
+       runtime: node
+       buildCommand: npm install
+       startCommand: node index.js
+       envVars:
+         - key: NODE_ENV
+           value: production
+         - key: PORT
+           value: 10000
+         - key: SUPABASE_URL
+           sync: false
+         - key: SUPABASE_SERVICE_KEY
+           sync: false
+         - key: JWT_SECRET
+           sync: false
+         - key: CLIENT_URL
+           sync: false
+
+4. Update .gitignore:
+   .env
+   .env.local
+   server/.env
+   dist/
+   node_modules/
+   server/node_modules/
+   .DS_Store
+
+Output: updated package.json + vercel.json + server/render.yaml + updated .gitignore
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[YOU DO THIS] AFTER PROMPT 12 — DEPLOY TO PRODUCTION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP A — Push to GitHub:
+  git add .
+  git commit -m "feat: APOTSA MVP complete"
+  git push origin main
+
+STEP B — Deploy Backend on Render:
+  1. render.com → New → Web Service → connect GitHub repo
+  2. Root Directory: server
+  3. Build: npm install | Start: node index.js
+  4. Environment Variables:
+     SUPABASE_URL → your supabase project URL
+     SUPABASE_SERVICE_KEY → service_role key
+     JWT_SECRET → same as local
+     CLIENT_URL → put * for now (update after Vercel)
+     PORT → 10000
+  5. Deploy → wait for "Live"
+  6. Copy your Render URL e.g. https://apotsa-api.onrender.com
+
+STEP C — Deploy Frontend on Vercel:
+  1. vercel.com → New Project → import GitHub repo
+  2. Framework: Vite | Root: /
+  3. Environment Variables:
+     VITE_API_URL → https://apotsa-api.onrender.com
+     VITE_ANTHROPIC_API_KEY → sk-ant-...
+  4. Deploy → wait for "Ready"
+  5. Copy your Vercel URL e.g. https://apotsa.vercel.app
+
+STEP D — Update CORS:
+  Render → your service → Environment
+  CLIENT_URL → https://apotsa.vercel.app
+  Trigger redeploy
+
+STEP E — Test production:
+  Open https://apotsa.vercel.app
+  Click Admin demo → login works
+  Expenses load from Supabase
+  AI Agent analyzes with Claude
+
+DEMO CREDENTIALS TO SHARE:
+  Admin:    alex@techspire.com    / password123
+  Manager:  priya@techspire.com   / password123
+  Employee: rahul@techspire.com   / password123
+
+
+=============================================================================
+DESIGN SYSTEM CHEATSHEET
+(Paste at top of any prompt when AI needs context)
+=============================================================================
+
+Colors: lime-400 (#a3e635) accent | slate-900 (#0f172a) bg | white cards
+Text: slate-900 primary | slate-500 secondary | slate-100/200 borders
+
+Card: bg-white rounded-3xl shadow-[0_2px_20px_rgba(0,0,0,0.04)] border border-slate-100
+Button primary: bg-slate-900 text-white hover:bg-lime-400 hover:text-slate-900 rounded-xl
+Button accent: bg-lime-400 text-slate-900 hover:bg-lime-500 rounded-xl
+Badges: approved=lime-100/lime-700 | pending=amber-100/amber-700 |
+        rejected=red-100/red-700 | auto_approved=blue-100/blue-700 | flagged=orange-100/orange-700
+
+Amounts: amount.toLocaleString('en-IN') with ₹ prefix
+Dates: "DD Mon YYYY" e.g. "12 Feb 2025"
+NO localStorage | NO new npm packages | Modals use AnimatePresence + motion.div
+=============================================================================
+END — 12 PROMPTS + ALL MANUAL STEPS
+=============================================================================

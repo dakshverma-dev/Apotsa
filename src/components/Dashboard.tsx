@@ -26,8 +26,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
     <div className="flex h-screen bg-[#F8F9FA] overflow-hidden font-sans text-slate-900 selection:bg-lime-200 selection:text-slate-900">
       {/* Sidebar - Dark Mode like Ramp/Spendesk mixed style */}
       <aside className="w-64 bg-[#0F172A] border-r border-slate-800 hidden md:flex flex-col">
-        <div className="p-6">
-          <img src="/logos/file_00000000d0507207aad9233333b176c8 (1).png" alt="Apotsa" className="h-8" />
+        <div className="p-6 flex items-center gap-3">
+          <div className="w-8 h-8 bg-lime-400 rounded-lg flex items-center justify-center">
+            <div className="w-3 h-3 bg-[#0F172A] rounded-full"></div>
+          </div>
+          <span className="text-xl font-bold tracking-tight text-white">Apotsa</span>
         </div>
 
         <div className="px-4 mb-6">
@@ -84,7 +87,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
               <button
                 key={r}
                 onClick={() => setRole(r as UserRole)}
-                className={`flex - 1 py - 1.5 rounded - md text - [10px] font - bold uppercase tracking - wide transition - all ${role === r
+                className={`flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide transition-all ${role === r
                   ? 'bg-lime-400 text-slate-900 shadow-sm'
                   : 'text-slate-400 hover:text-white hover:bg-slate-700'
                   } `}
@@ -143,16 +146,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
   );
 };
 
-const NavItem = ({ icon, label, active = false, badge }: { icon: React.ReactNode, label: string, active?: boolean, badge?: string }) => (
+const NavItem = ({ icon, label, active = false, badge, onClick }: { icon: React.ReactNode, label: string, active?: boolean, badge?: string, onClick?: () => void }) => (
   <a
     href="#"
-    className={`flex items - center justify - between px - 3 py - 2 rounded - lg text - sm font - medium transition - all duration - 200 group ${active
+    onClick={(e) => { e.preventDefault(); onClick?.(); }}
+    className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${active
       ? 'bg-lime-400/10 text-lime-400'
       : 'text-slate-400 hover:bg-slate-800 hover:text-white'
       } `}
   >
     <div className="flex items-center gap-3">
-      <span className={`${active ? 'text-lime-400' : 'text-slate-500 group-hover:text-white'} transition - colors`}>{icon}</span>
+      <span className={`${active ? 'text-lime-400' : 'text-slate-500 group-hover:text-white'} transition-colors`}>{icon}</span>
       {label}
     </div>
     {badge && (

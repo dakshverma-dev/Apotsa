@@ -34,7 +34,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100/50">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
+            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+              <div className="w-3 h-3 bg-lime-400 rounded-full"></div>
+            </div>
+            <span className="text-xl font-bold tracking-tighter text-slate-900">Apotsa</span>
           </div>
 
           {/* Desktop Nav */}
@@ -360,8 +363,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
       <footer className="bg-white border-t border-slate-100 py-20">
         <div className="container mx-auto px-6 grid md:grid-cols-4 gap-12">
           <div className="col-span-1 md:col-span-1">
-            <div className="mb-6">
-              <img src="/logos/Apotsa Logo (1).svg" alt="Apotsa" className="h-8" />
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-6 h-6 bg-slate-900 rounded-md flex items-center justify-center">
+                <div className="w-2 h-2 bg-lime-400 rounded-full"></div>
+              </div>
+              <span className="text-lg font-bold tracking-tighter text-slate-900">Apotsa</span>
             </div>
             <p className="text-slate-500 text-sm leading-relaxed">
               The financial operating system designed for the next generation of Indian business.
@@ -379,7 +385,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
             </div>
           ))}
         </div>
-
         <div className="container mx-auto px-6 mt-20 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-400">
           <div>© 2024 Apotsa Technologies. All rights reserved.</div>
           <div className="flex gap-8">

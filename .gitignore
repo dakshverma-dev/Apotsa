@@ -1,0 +1,32 @@
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.*.local
+server/.env
+
+# Build output
+dist/
+build/
+
+# Dependencies
+node_modules/
+server/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Vite
+.vite/
