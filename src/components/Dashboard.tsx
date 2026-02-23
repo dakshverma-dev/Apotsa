@@ -87,9 +87,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
               <button
                 key={r}
                 onClick={() => setRole(r as UserRole)}
-                className={`flex - 1 py - 1.5 rounded - md text - [10px] font - bold uppercase tracking - wide transition - all ${role === r
-                    ? 'bg-lime-400 text-slate-900 shadow-sm'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                className={`flex-1 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wide transition-all ${role === r
+                  ? 'bg-lime-400 text-slate-900 shadow-sm'
+                  : 'text-slate-400 hover:text-white hover:bg-slate-700'
                   } `}
               >
                 {r.slice(0, 3)}
@@ -146,16 +146,17 @@ export const Dashboard: React.FC<DashboardProps> = ({ role, setRole, onLogout })
   );
 };
 
-const NavItem = ({ icon, label, active = false, badge }: { icon: React.ReactNode, label: string, active?: boolean, badge?: string }) => (
+const NavItem = ({ icon, label, active = false, badge, onClick }: { icon: React.ReactNode, label: string, active?: boolean, badge?: string, onClick?: () => void }) => (
   <a
     href="#"
-    className={`flex items - center justify - between px - 3 py - 2 rounded - lg text - sm font - medium transition - all duration - 200 group ${active
-        ? 'bg-lime-400/10 text-lime-400'
-        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+    onClick={(e) => { e.preventDefault(); onClick?.(); }}
+    className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group ${active
+      ? 'bg-lime-400/10 text-lime-400'
+      : 'text-slate-400 hover:bg-slate-800 hover:text-white'
       } `}
   >
     <div className="flex items-center gap-3">
-      <span className={`${active ? 'text-lime-400' : 'text-slate-500 group-hover:text-white'} transition - colors`}>{icon}</span>
+      <span className={`${active ? 'text-lime-400' : 'text-slate-500 group-hover:text-white'} transition-colors`}>{icon}</span>
       {label}
     </div>
     {badge && (

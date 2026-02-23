@@ -54,7 +54,7 @@ export default defineConfig({
   },
   build: {
     target: 'esnext',
-    outDir: 'dist',
+    outDir: 'build',
     minify: 'esbuild',
     rollupOptions: {
       output: {
