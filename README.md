@@ -1,9 +1,4 @@
-# APOTSA — India's Financial Operations Platform
-
-> **Spend management software + virtual corporate cards for Indian SMBs.**
-> Ramp for India. Built fast, capital-light, India-specific from day one.
-
----
+APOTSA
 
 ## The Goal
 
