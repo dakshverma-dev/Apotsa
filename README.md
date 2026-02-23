@@ -1,5 +1,4 @@
-# APOTSA - Website Wireframe Design
-
+# APOTSA 
 A modern, responsive expense management and financial control platform built with React, TypeScript, and Vite. This project features a sleek landing page and a comprehensive dashboard system with role-based access control.
 
 
