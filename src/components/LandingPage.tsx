@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'motion/react';
 import {
   CreditCard,
@@ -16,11 +17,9 @@ import {
   PieChart
 } from 'lucide-react';
 
-interface LandingPageProps {
-  onLogin: () => void;
-}
-
-export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
+export const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const goToLogin = () => navigate('/login');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
@@ -55,13 +54,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
 
           <div className="hidden md:flex items-center gap-4">
             <button
-              onClick={onLogin}
+              onClick={goToLogin}
               className="text-sm font-medium text-slate-600 hover:text-slate-900 px-4 py-2"
             >
               Log in
             </button>
             <button
-              onClick={onLogin}
+              onClick={goToLogin}
               className="group relative px-6 py-2.5 bg-slate-900 rounded-full overflow-hidden"
             >
               <div className="absolute inset-0 bg-lime-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
@@ -88,8 +87,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
               <a key={item} href="#" className="text-lg font-medium text-slate-900">{item}</a>
             ))}
             <div className="h-px bg-slate-100 my-2"></div>
-            <button onClick={onLogin} className="text-left text-lg font-medium text-slate-600">Log in</button>
-            <button onClick={onLogin} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium">Get Started</button>
+            <button onClick={goToLogin} className="text-left text-lg font-medium text-slate-600">Log in</button>
+            <button onClick={goToLogin} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium">Get Started</button>
           </div>
         </motion.div>
       </header>
@@ -114,13 +113,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button
-                    onClick={onLogin}
+                    onClick={goToLogin}
                     className="w-full sm:w-auto px-8 py-4 bg-lime-400 hover:bg-lime-500 text-slate-900 rounded-2xl font-bold text-lg transition-all transform hover:-translate-y-1"
                   >
                     Start Free Trial
                   </button>
                   <button
-                    onClick={onLogin}
+                    onClick={goToLogin}
                     className="w-full sm:w-auto px-8 py-4 bg-white border border-slate-200 hover:border-slate-300 text-slate-900 rounded-2xl font-bold text-lg transition-all"
                   >
                     Contact Sales
@@ -335,7 +334,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                   "1 day retention"
                 ]}
                 cta="Start Free"
-                onClick={onLogin}
+                onClick={goToLogin}
                 dark={true}
               />
               <PricingCard
@@ -350,7 +349,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLogin }) => {
                   "Dedicated success manager"
                 ]}
                 cta="Start Trial"
-                onClick={onLogin}
+                onClick={goToLogin}
                 highlight={true}
                 dark={true}
               />

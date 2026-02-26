@@ -6,6 +6,8 @@ import authenticate from '../middleware/auth.js'
 
 const router = express.Router()
 
+const SAFE_FIELDS = 'id, email, name, role, department, company_id, avatar_color, created_at'
+
 const signToken = (user) =>
   jwt.sign(
     { id: user.id, email: user.email, role: user.role, company_id: user.company_id },
@@ -16,7 +18,7 @@ const signToken = (user) =>
 // POST /api/auth/register
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, name, company_name, role } = req.body
+    const { email, password, name, department, role } = req.body
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'email, password and name are required' })
     }
@@ -25,8 +27,8 @@ router.post('/register', async (req, res) => {
 
     const { data: user, error } = await supabase
       .from('users')
-      .insert([{ email, password_hash, name, company_name, role: role || 'employee' }])
-      .select('id, email, name, company_name, role, company_id, created_at')
+      .insert([{ email, password_hash, name, department, role: role || 'employee' }])
+      .select(SAFE_FIELDS)
       .single()
 
     if (error) {
@@ -77,7 +79,7 @@ router.get('/me', authenticate, async (req, res) => {
   try {
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, email, name, company_name, role, company_id, created_at')
+      .select(SAFE_FIELDS)
       .eq('id', req.user.id)
       .single()
 
