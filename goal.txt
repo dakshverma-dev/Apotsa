@@ -1,6 +1,19 @@
 APOTSA: INDIA'S FINANCIAL OPERATIONS
 PLATFORM
 Strategic Implementation Plan - Bare Minimum MVP Approach
+
+**Current goal- we've aligned on this: the goal is a polished investor demo — not production. A working demo that looks and feels real enough that a CFO can see themselves using it. No real transactions, dummy card UI, but everything wired to real backend/DB.
+New 10-day deadline starting today (Day 1).
+Day 1-2: Auth end-to-end working — login → JWT → role-based redirect to correct dashboard (Admin/Manager/Employee). Seed 3 demo accounts now.
+Day 3-4: Expense CRUD + approval flow — employee submits, manager approves/rejects, admin sees all.
+Day 5: Cards UI — virtual card display per employee, spend limit, available balance, company wallet on admin side. Make it look premium.
+Day 6: Admin analytics dashboard — spend by department, budget bars, top spenders, pending approvals. Use recharts.
+Day 7: GST auto-calculation on expenses + policy violation flags + finance review queue.
+Day 8: Full design revamp — reference Ramp.com and Brex.com. Use shadcn/ui if not already added. Dark mode, clean tables, proper empty states, loading skeletons.
+Day 9: Seed realistic demo data — fake company 'Nexus Technologies Pvt Ltd', 15 employees, 3 departments, 2 months expense history, pending approvals, policy violations.
+Day 10: Buffer, polish, full demo flow test across all 3 roles, deploy on Vercel + Render, record Loom for Mohit.**
+
+
 EXECUTIVE SUMMARY
 The Opportunity: India's 60M SMBs represent a $10B+ spend management market. 
 We're building the spend control software with virtual cards that Indian businesses 

@@ -63,33 +63,111 @@ India has 60M+ SMBs, most still managing expenses over WhatsApp and Excel. APOTS
 
 ```
 ├── src/
-│   ├── components/
-│   │   ├── LandingPage.tsx           # Marketing landing page
-│   │   ├── LoginPage.tsx             # Auth UI
-│   │   ├── Dashboard.tsx             # Shell + sidebar navigation
-│   │   └── dashboard/
-│   │       ├── AdminDashboard.tsx    # Admin view — analytics, user mgmt
-│   │       ├── ManagerDashboard.tsx  # Manager view — approvals, team spend
-│   │       └── EmployeeDashboard.tsx # Employee view — submit, track expenses
-│   ├── contexts/
-│   │   └── AuthContext.tsx           # Auth state
-│   ├── lib/
-│   │   └── api.ts                    # Typed API client
 │   ├── App.tsx
 │   ├── main.tsx
-│   └── index.css
+│   ├── index.css
+│   ├── vite-env.d.ts
+│   ├── Attributions.md
+│   ├── components/
+│   │   ├── LandingPage.tsx
+│   │   ├── LoginPage.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── ProtectedRoute.tsx
+│   │   ├── dashboard/
+│   │   │   ├── AdminDashboard.tsx
+│   │   │   ├── ManagerDashboard.tsx
+│   │   │   └── EmployeeDashboard.tsx
+│   │   ├── figma/
+│   │   │   └── ImageWithFallback.tsx
+│   │   ├── pages/
+│   │   │   ├── AdminDashboardPage.tsx
+│   │   │   ├── EmployeeDashboardPage.tsx
+│   │   │   └── ManagerDashboardPage.tsx
+│   │   └── ui/
+│   │       ├── accordion.tsx
+│   │       ├── alert-dialog.tsx
+│   │       ├── alert.tsx
+│   │       ├── aspect-ratio.tsx
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── breadcrumb.tsx
+│   │       ├── button.tsx
+│   │       ├── calendar.tsx
+│   │       ├── card.tsx
+│   │       ├── carousel.tsx
+│   │       ├── chart.tsx
+│   │       ├── checkbox.tsx
+│   │       ├── collapsible.tsx
+│   │       ├── command.tsx
+│   │       ├── context-menu.tsx
+│   │       ├── dialog.tsx
+│   │       ├── drawer.tsx
+│   │       ├── dropdown-menu.tsx
+│   │       ├── form.tsx
+│   │       ├── hover-card.tsx
+│   │       ├── input-otp.tsx
+│   │       ├── input.tsx
+│   │       ├── label.tsx
+│   │       ├── menubar.tsx
+│   │       ├── navigation-menu.tsx
+│   │       ├── pagination.tsx
+│   │       ├── popover.tsx
+│   │       ├── progress.tsx
+│   │       ├── radio-group.tsx
+│   │       ├── resizable.tsx
+│   │       ├── scroll-area.tsx
+│   │       ├── select.tsx
+│   │       ├── separator.tsx
+│   │       ├── sheet.tsx
+│   │       ├── sidebar.tsx
+│   │       ├── skeleton.tsx
+│   │       ├── slider.tsx
+│   │       ├── sonner.tsx
+│   │       ├── switch.tsx
+│   │       ├── table.tsx
+│   │       ├── tabs.tsx
+│   │       ├── textarea.tsx
+│   │       ├── toggle-group.tsx
+│   │       ├── toggle.tsx
+│   │       ├── tooltip.tsx
+│   │       ├── use-mobile.ts
+│   │       └── utils.ts
+│   ├── contexts/
+│   │   └── AuthContext.tsx
+│   ├── guidelines/
+│   │   └── Guidelines.md
+│   ├── lib/
+│   │   └── api.ts
+│   └── styles/
+│       └── globals.css
 ├── server/
-│   ├── index.js                      # Express entry point
-│   ├── db/supabase.js                # Supabase client
-│   ├── middleware/auth.js            # JWT middleware
+│   ├── index.js
+│   ├── package.json
+│   ├── db/
+│   │   ├── schema.sql
+│   │   └── supabase.js
+│   ├── middleware/
+│   │   └── auth.js
 │   ├── routes/
-│   │   ├── auth.js                   # Register / Login / Me
-│   │   ├── expenses.js               # Expense CRUD + stats
-│   │   └── cards.js                  # Card management
-│   └── package.json
-├── vite.config.ts
+│   │   ├── auth.js
+│   │   ├── cards.js
+│   │   └── expenses.js
+│   └── scripts/
+│       └── seedUsers.js
+├── build/
+│   ├── index.html
+│   ├── assets/
+│   └── logos/
+├── logos/
+├── public/
+│   └── logos/
+├── goal.txt
+├── index.html
+├── prompts.txt
+├── README.md
+├── package.json
 ├── tsconfig.json
-└── package.json
+└── vite.config.ts
 ```
 
 ---
